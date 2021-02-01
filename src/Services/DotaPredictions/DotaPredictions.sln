@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotaPredictions", "DotaPredictions\DotaPredictions.csproj", "{0DE7E38D-008E-4236-873E-69AAAA631B6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotaPredictions", "DotaPredictions\DotaPredictions.csproj", "{0DE7E38D-008E-4236-873E-69AAAA631B6D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Basics", "Basics", "{E6C63272-CD3C-48A5-9057-4EC41A06601D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Core", "..\..\Basics\EventBus.Core\EventBus.Core.csproj", "{5AC8972E-63CD-4536-8C2C-253BD33277E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.RabbitMq", "..\..\Basics\EventBus.RabbitMq\EventBus.RabbitMq.csproj", "{90218F71-C4FA-413D-99AD-9BA037B83B58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +21,21 @@ Global
 		{0DE7E38D-008E-4236-873E-69AAAA631B6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DE7E38D-008E-4236-873E-69AAAA631B6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DE7E38D-008E-4236-873E-69AAAA631B6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AC8972E-63CD-4536-8C2C-253BD33277E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AC8972E-63CD-4536-8C2C-253BD33277E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AC8972E-63CD-4536-8C2C-253BD33277E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AC8972E-63CD-4536-8C2C-253BD33277E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90218F71-C4FA-413D-99AD-9BA037B83B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90218F71-C4FA-413D-99AD-9BA037B83B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90218F71-C4FA-413D-99AD-9BA037B83B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90218F71-C4FA-413D-99AD-9BA037B83B58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5AC8972E-63CD-4536-8C2C-253BD33277E3} = {E6C63272-CD3C-48A5-9057-4EC41A06601D}
+		{90218F71-C4FA-413D-99AD-9BA037B83B58} = {E6C63272-CD3C-48A5-9057-4EC41A06601D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4BE311D0-A525-44F3-A45C-4E3A951CAD52}
