@@ -22,7 +22,7 @@ namespace EventBus.RabbitMq
                 return options;
             });
 
-            services.AddSingleton(sp =>
+            services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
                 var options = sp.GetRequiredService<RabbitMqOptions>();
@@ -36,7 +36,7 @@ namespace EventBus.RabbitMq
                 return new DefaultRabbitMQPersistentConnection(factory, logger, retryCount);
             });
 
-            services.AddSingleton(sp => new RabbitMqEventBus(
+            services.AddSingleton<IEventBus>(sp => new RabbitMqEventBus(
                 persistentConnection: sp.GetRequiredService<IRabbitMQPersistentConnection>(),
                 logger: sp.GetRequiredService<ILogger<RabbitMqEventBus>>(),
                 basicSerializer: sp.GetRequiredService<IBasicSerializer>(),
@@ -49,7 +49,7 @@ namespace EventBus.RabbitMq
         public static void AddRabbitMq(this IServiceCollection services, string queueName, string hostName, string login = null, 
             string password = null, int? retryCount = null)
         {
-            services.AddSingleton(sp =>
+            services.AddSingleton<IRabbitMQPersistentConnection>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<DefaultRabbitMQPersistentConnection>>();
                 var factory = new ConnectionFactory()
@@ -63,7 +63,7 @@ namespace EventBus.RabbitMq
                 return new DefaultRabbitMQPersistentConnection(factory, logger, rCount);
             });
 
-            services.AddSingleton(sp => new RabbitMqEventBus(
+            services.AddSingleton<IEventBus>(sp => new RabbitMqEventBus(
                 persistentConnection: sp.GetRequiredService<IRabbitMQPersistentConnection>(),
                 logger: sp.GetRequiredService<ILogger<RabbitMqEventBus>>(),
                 basicSerializer: sp.GetRequiredService<IBasicSerializer>(),
