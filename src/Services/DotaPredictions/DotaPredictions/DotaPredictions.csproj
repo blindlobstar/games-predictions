@@ -10,4 +10,13 @@
     <PackageReference Include="SteamKit2" Version="2.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handlers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Basics\EventBus.Core\EventBus.Core.csproj" />
+    <ProjectReference Include="..\..\..\Basics\EventBus.RabbitMq\EventBus.RabbitMq.csproj" />
+  </ItemGroup>
+
 </Project>

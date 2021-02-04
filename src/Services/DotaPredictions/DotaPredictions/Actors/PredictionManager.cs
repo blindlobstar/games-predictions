@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using DotaPredictions.Actors.Predictions;
 using DotaPredictions.Models;
 
 namespace DotaPredictions.Actors
@@ -7,27 +8,43 @@ namespace DotaPredictions.Actors
     {
         #region messages
 
-        public class AddPredictionRequest
+        public class AddPredictionRequest : PredictionBase<dynamic>
         {
-            public AddPredictionRequest(string userId, ulong steamId, PredictionType predictionType, object @params)
+            public AddPredictionRequest(string userId, ulong steamId, string predictionType, 
+                dynamic parameters, string predictionId)
             {
+                PredictionId = predictionId;
                 UserId = userId;
                 SteamId = steamId;
-                PredictionType = predictionType;
-                Params = @params;
+                Models.PredictionType.TryParse(predictionType, out Models.PredictionType type);
+                PredictionType = type;
+                Parameters = parameters;
             }
 
-            public PredictionType PredictionType { get; private set; }
-            public ulong SteamId { get; private set; }
-            public string UserId { get; private set; }
-            public object Params { get; private set; }
+            public new PredictionType PredictionType { get; set; }
+            public string PredictionId { get; set; }
+
         }
 
         #endregion
 
+        private readonly IActorRef _dotaClient;
+
+        public PredictionManager(IActorRef dotaClient)
+        {
+            _dotaClient = dotaClient;
+        }
+
         protected override void OnReceive(object message)
         {
-            throw new System.NotImplementedException();
+            var addPredictionRequest = message as AddPredictionRequest;
+            var predictionType = addPredictionRequest?.PredictionType;
+            switch (predictionType)
+            {
+                case PredictionType.Win:
+                    Context.ActorOf(WinActor.Props(_dotaClient));
+                    break;
+            }
         }
     }
 }

@@ -5,5 +5,6 @@
         IEventBus Subscribe<TEvent>()
             where TEvent : IEvent;
         void Publish(IEvent @event);
+        void StartBasicConsume(string eventName = null);
     }
 }

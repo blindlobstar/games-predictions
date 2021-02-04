@@ -1,29 +1,24 @@
 ﻿using System;
-using System.Linq;
-using System.Threading;
-using Akka;
 using Akka.Actor;
 using Akka.Event;
+using DotaPredictions.Models;
 using DotaPredictions.Models.Steam;
 using SteamKit2;
 using SteamKit2.GC.Dota.Internal;
 
 namespace DotaPredictions.Actors.Predictions
 {
-    public class WinPrediction : UntypedActor, IWithTimers
+    public class WinActor : UntypedActor, IWithTimers
     {
         #region messages
 
-        public class StartPrediction
+        public class StartPrediction : PredictionBase<object>
         {
             public StartPrediction(ulong steamId, string userId)
             {
                 SteamId = steamId;
                 UserId = userId;
             }
-
-            public ulong SteamId { get; private set; }
-            public string UserId { get; private set; }
         }
 
         public class PredictionEnds
@@ -46,7 +41,7 @@ namespace DotaPredictions.Actors.Predictions
         private ulong SteamId { get; set; }
         private int TeamId { get; set; }
 
-        public WinPrediction(IActorRef dotaClient)
+        public WinActor(IActorRef dotaClient)
         {
             _dotaClient = dotaClient;
         }
@@ -86,5 +81,8 @@ namespace DotaPredictions.Actors.Predictions
                     break;
             }
         }
+
+        public static Props Props(IActorRef dotaClient) =>
+            Akka.Actor.Props.Create(() => new WinActor(dotaClient));
     }
 }

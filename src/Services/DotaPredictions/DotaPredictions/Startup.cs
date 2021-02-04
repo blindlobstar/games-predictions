@@ -6,6 +6,8 @@ using Akka.Routing;
 using DotaPredictions.Actors;
 using DotaPredictions.Actors.Predictions;
 using DotaPredictions.Actors.Providers;
+using DotaPredictions.Models.Commands;
+using EventBus.RabbitMq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +30,6 @@ namespace DotaPredictions
 
             services.AddHttpClient();
 
-
-
             services.AddSingleton<DotaClientProvider>(sp =>
             {
                 var system = sp.GetRequiredService<ActorSystem>();
@@ -47,31 +47,24 @@ namespace DotaPredictions
                     .WithSupervisorStrategy(strategy));
             });
 
+            services.AddSingleton<PredictionManagerProvider>(sp =>
+            {
+                var system = sp.GetRequiredService<ActorSystem>();
+                var provider = sp.GetRequiredService<DotaClientProvider>();
+                return () => system.ActorOf(Props.Create(() => new PredictionManager(provider())));
+            });
+
+            services.AddRabbitMq("Test", Environment.GetEnvironmentVariable("RABBITMQ_HOST"));
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var logger = app.ApplicationServices.GetRequiredService<ILogger<Startup>>();
-            var provider = app.ApplicationServices.GetRequiredService<DotaClientProvider>();
-            var actor = provider();
-            //var serverId = actor.Ask<ulong>(new DotaClient.ServerSteamIdRequest(76561198174349605)).Result;
-            //var obj = actor.Ask<RealtimeStats>(new DotaClient.GameRealTimeStatsRequest(serverId)).Result;
-            //var match = actor.Ask<CMsgDOTAMatch>(new DotaClient.GetMatchDetailsRequest((ulong)obj.Match.Matchid)).Result;
             var system = app.ApplicationServices.GetRequiredService<ActorSystem>();
-            var winActor = system.ActorOf(Props.Create(() => new WinPrediction(actor)));
-            var winActor2 = system.ActorOf(Props.Create(() => new WinPrediction(actor)));
-            var winActor3 = system.ActorOf(Props.Create(() => new WinPrediction(actor)));
-            var resultTask =
-                winActor.Ask<WinPrediction.PredictionEnds>(new WinPrediction.StartPrediction(76561199005920395, "nor"));
-            var resultTask2 =
-                winActor2.Ask<WinPrediction.PredictionEnds>(
-                    new WinPrediction.StartPrediction(76561198036856312, "nor"));
-            var resultTask3 =
-                winActor3.Ask<WinPrediction.PredictionEnds>(
-                    new WinPrediction.StartPrediction(76561198177014315, "nor"));
-            Task.WaitAll(resultTask, resultTask2, resultTask3);
-            var result = resultTask.Result;
-            logger.LogInformation($"{result}");
+
+            app.UseRabbitMq()
+                .Subscribe<AddPrediction>()
+                .StartBasicConsume();
         }
     }
 }
