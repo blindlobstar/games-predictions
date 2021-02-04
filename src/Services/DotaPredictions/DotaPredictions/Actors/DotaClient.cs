@@ -47,11 +47,21 @@ namespace DotaPredictions.Actors
             public ulong MatchId { get; private set; }
         }
 
+        public class NoMatchDetails
+        {
+            public NoMatchDetails(ulong matchId)
+            {
+                MatchId = matchId;
+            }
+
+            public ulong MatchId { get; private set; }
+        }
+
         #endregion
 
         const int APPID = 570;
 
-        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient;
         private readonly ILoggingAdapter _log = Context.GetLogger();
 
         private readonly SteamClient _client;
@@ -64,11 +74,13 @@ namespace DotaPredictions.Actors
         private bool isReady;
         private ulong _requestedMatchId;
 
-        public DotaClient(SteamClient client, string apiKey, string username, string password)
+        public DotaClient(SteamClient client, HttpClient httpClient,
+            string apiKey, string username, string password)
         {
             _apiKey = apiKey;
             _username = username;
             _password = password;
+            _httpClient = httpClient;
             _client = new SteamClient();
             _user = _client.GetHandler<SteamUser>();
             _gameCoordinator = _client.GetHandler<SteamGameCoordinator>();
@@ -82,8 +94,8 @@ namespace DotaPredictions.Actors
             _callbackMgr.Subscribe<SteamClient.DisconnectedCallback>(OnDisconnected);
         }
 
-        public static Props Props(SteamClient client, string apiKey, string username, string password) =>
-            Akka.Actor.Props.Create(() => new DotaClient(client, apiKey, username, password));
+        public static Props Props(SteamClient client, HttpClient httpClient, string apiKey, string username, string password) =>
+            Akka.Actor.Props.Create(() => new DotaClient(client, httpClient, apiKey, username, password));
 
         protected override void PreStart()
         {
@@ -94,6 +106,12 @@ namespace DotaPredictions.Actors
             }
             isReady = false;
             _log.Info($"DotaClient[{_username}] is ready!");
+        }
+
+        protected override void PostStop()
+        {
+            _log.Info($"DotaClient[{_username}] is stoped!");
+            base.PostStop();
         }
 
         protected override void OnReceive(object message)
@@ -118,7 +136,7 @@ namespace DotaPredictions.Actors
 
                     //Dota steam interface frequently sends Bad Request response
                     var policy = Policy.HandleResult<HttpResponseMessage>(msg => !msg.IsSuccessStatusCode)
-                        .WaitAndRetryAsync(10, count => TimeSpan.FromSeconds(1 * count));
+                        .WaitAndRetryAsync(10, count => TimeSpan.FromMilliseconds(100 * count));
                     
                     var response = policy.ExecuteAsync(() => _httpClient.GetAsync(new Uri(
                             $"http://api.steampowered.com/IDOTA2MatchStats_570/GetRealtimeStats/v1/?key={_apiKey}&server_steam_id={request.SteamServerId}"))).Result;
@@ -198,11 +216,14 @@ namespace DotaPredictions.Actors
                     isReady = true;
                     break;
                 case (uint)EDOTAGCMsg.k_EMsgGCMatchDetailsResponse:
+                    isReady = true;
                     var matchDetails = new ClientGCMsgProtobuf<CMsgGCMatchDetailsResponse>(callback.Message);
                     var result = (EResult)matchDetails.Body.result;
                     if (result != EResult.OK)
                     {
-                        _log.Warning("DotaClient[{2}] Unable to request match details: {0}, for MatchId: {1}", result, _requestedMatchId, _username);
+                        Sender.Tell(new NoMatchDetails(_requestedMatchId));
+                        _log.Info("DotaClient[{2}] Unable to request match details: {0}, for MatchId: {1}", result, _requestedMatchId, _username);
+                        break;
                     }
                     var match = matchDetails.Body.match;
                     Sender.Tell(match);
