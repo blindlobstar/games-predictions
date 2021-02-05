@@ -1,23 +1,24 @@
 ﻿using System;
 using Akka.Actor;
 using Akka.Event;
+using DotaPredictions.Infrastructure.Predictions;
 using DotaPredictions.Models;
 using DotaPredictions.Models.Steam;
-using SteamKit2;
 using SteamKit2.GC.Dota.Internal;
 
-namespace DotaPredictions.Actors.Predictions
+namespace DotaPredictions.Actors.BaseTypesActors
 {
-    public class WinActor : UntypedActor, IWithTimers
+    public class GameEnd<TParams> : UntypedActor, IWithTimers
     {
         #region messages
 
-        public class StartPrediction : PredictionBase<object>
+        public class StartPrediction : PredictionBase<TParams>
         {
-            public StartPrediction(ulong steamId, string userId)
+            public StartPrediction(ulong steamId, string userId, TParams @params)
             {
                 SteamId = steamId;
                 UserId = userId;
+                Parameters = @params;
             }
         }
 
@@ -35,15 +36,16 @@ namespace DotaPredictions.Actors.Predictions
 
         private readonly ILoggingAdapter _log = Context.GetLogger();
         private readonly IActorRef _dotaClient;
-
+        private readonly IPredictionLogic<CMsgDOTAMatch, TParams> _predictionLogic;
+        private TParams Parameters { get; set; }
         public ITimerScheduler Timers { get; set; }
         private long MatchId { get; set; }
         private ulong SteamId { get; set; }
-        private int TeamId { get; set; }
 
-        public WinActor(IActorRef dotaClient)
+        public GameEnd(IActorRef dotaClient, IPredictionLogic<CMsgDOTAMatch, TParams> predictionLogic)
         {
             _dotaClient = dotaClient;
+            _predictionLogic = predictionLogic;
         }
 
         protected override void OnReceive(object message)
@@ -51,8 +53,9 @@ namespace DotaPredictions.Actors.Predictions
             switch (message)
             {
                 case StartPrediction request:
-                    _log.Info("Start Win Prediction for user with SteamId: {0}", request.SteamId);
+                    _log.Info("Start new prediction for user with SteamId: {0}", request.SteamId);
                     SteamId = request.SteamId;
+                    Parameters = request.Parameters;
                     _dotaClient.Tell(new DotaClient.ServerSteamIdRequest(request.SteamId));
                     break;
                 case ulong serverSteamId:
@@ -63,15 +66,10 @@ namespace DotaPredictions.Actors.Predictions
                     Timers.StartPeriodicTimer("getMatchDetails", "resend", TimeSpan.Zero, TimeSpan.FromSeconds(10));
                     break;
                 case CMsgDOTAMatch match:
-                    var isRadiantWin = match.match_outcome == EMatchOutcome.k_EMatchOutcome_RadVictory;
-                    var playerIndex = match.players.FindIndex(x => x.account_id == new SteamID(SteamId).AccountID);
-                    var result = !((playerIndex < match.players.Count / 2) ^
-                                 isRadiantWin);
-                    
+                    var checkResult = _predictionLogic.Check(match, Parameters);
                     Timers.Cancel("getMatchDetails");
-                    Context.Parent.Tell(new PredictionEnds(result));
-
-                    _log.Info("Win Prediction is over for user with SteamId: {0}, Result: {1}", SteamId, result);
+                    Context.Parent.Tell(new PredictionEnds(checkResult.Result));
+                    _log.Info("Prediction is over for user with SteamId: {0}, Result: {1}", SteamId, checkResult.Result);
                     Context.Stop(Self);
                     break;
                 case DotaClient.NoMatchDetails:
@@ -82,7 +80,7 @@ namespace DotaPredictions.Actors.Predictions
             }
         }
 
-        public static Props Props(IActorRef dotaClient) =>
-            Akka.Actor.Props.Create(() => new WinActor(dotaClient));
+        public static Props Props<T>(IActorRef dotaClient, IPredictionLogic<CMsgDOTAMatch, T> predictionLogic) =>
+            Akka.Actor.Props.Create(() => new GameEnd<T>(dotaClient, predictionLogic));
     }
 }

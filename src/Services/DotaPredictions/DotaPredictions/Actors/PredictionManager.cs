@@ -1,5 +1,6 @@
 ﻿using System;
 using Akka.Actor;
+using DotaPredictions.Actors.BaseTypesActors;
 using DotaPredictions.Actors.Predictions;
 using DotaPredictions.Models;
 
@@ -52,8 +53,9 @@ namespace DotaPredictions.Actors
             switch (request.PredictionType)
             {
                 case PredictionType.Win:
-                    var actor = Context.ActorOf(WinActor.Props(_dotaClient));
-                    actor.Tell(new WinActor.StartPrediction(request.SteamId, request.UserId));
+                    var logic = new WinPredictionLogic();
+                    var actor = Context.ActorOf(GameEnd<ulong>.Props(_dotaClient, logic));
+                    actor.Tell(new GameEnd<ulong>.StartPrediction(request.SteamId, request.UserId, request.SteamId));
                     break;
             }
         }
