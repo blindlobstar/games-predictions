@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using DotaPredictions.Actors.Predictions;
 using DotaPredictions.Models;
 
@@ -37,14 +38,25 @@ namespace DotaPredictions.Actors
 
         protected override void OnReceive(object message)
         {
-            var addPredictionRequest = message as AddPredictionRequest;
-            var predictionType = addPredictionRequest?.PredictionType;
-            switch (predictionType)
+            switch (message)
+            {
+                case AddPredictionRequest request:
+                    OnPrediction(request);
+                    break;
+            }
+
+        }
+
+        private void OnPrediction(AddPredictionRequest request)
+        {
+            switch (request.PredictionType)
             {
                 case PredictionType.Win:
-                    Context.ActorOf(WinActor.Props(_dotaClient));
+                    var actor = Context.ActorOf(WinActor.Props(_dotaClient));
+                    actor.Tell(new WinActor.StartPrediction(request.SteamId, request.UserId));
                     break;
             }
         }
+
     }
 }

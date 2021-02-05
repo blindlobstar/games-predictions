@@ -6,7 +6,9 @@ using Akka.Routing;
 using DotaPredictions.Actors;
 using DotaPredictions.Actors.Predictions;
 using DotaPredictions.Actors.Providers;
+using DotaPredictions.Handlers;
 using DotaPredictions.Models.Commands;
+using EventBus.Core;
 using EventBus.RabbitMq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -54,14 +56,19 @@ namespace DotaPredictions
                 return () => system.ActorOf(Props.Create(() => new PredictionManager(provider())));
             });
 
-            services.AddRabbitMq("Test", Environment.GetEnvironmentVariable("RABBITMQ_HOST"));
+            services.AddScoped<IEventHandler<AddPrediction>, AddPredictionHandler>();
+
+            services.AddSingleton<IBasicSerializer, BasicJsonSerializer>();
+
+            services.AddRabbitMq("Test", Environment.GetEnvironmentVariable("RABBITMQ_HOST"), 
+                Environment.GetEnvironmentVariable("RABBITMQ_USERNAME"), 
+                Environment.GetEnvironmentVariable("RABBITMQ_PASS"));
+
 
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var system = app.ApplicationServices.GetRequiredService<ActorSystem>();
-
             app.UseRabbitMq()
                 .Subscribe<AddPrediction>()
                 .StartBasicConsume();

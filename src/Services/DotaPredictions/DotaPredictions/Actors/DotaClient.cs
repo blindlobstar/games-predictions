@@ -73,6 +73,7 @@ namespace DotaPredictions.Actors
         private readonly string _password;
         private bool isReady;
         private ulong _requestedMatchId;
+        private bool IsConnected { get; set; }
 
         public DotaClient(SteamClient client, HttpClient httpClient,
             string apiKey, string username, string password)
@@ -105,6 +106,7 @@ namespace DotaPredictions.Actors
                 _callbackMgr.RunWaitCallbacks(TimeSpan.FromSeconds(1));
             }
             isReady = false;
+            IsConnected = true;
             _log.Info($"DotaClient[{_username}] is ready!");
         }
 
@@ -118,6 +120,9 @@ namespace DotaPredictions.Actors
         {
             switch (message)
             {
+                case "isConnected":
+                    Sender.Tell(IsConnected);
+                    break;
                 case ServerSteamIdRequest request:
                     _log.Info("DotaClient[{1}] ServerSteamIdRequest, steam_id: {0}", request.SteamId, _username);
 
@@ -140,7 +145,11 @@ namespace DotaPredictions.Actors
                     
                     var response = policy.ExecuteAsync(() => _httpClient.GetAsync(new Uri(
                             $"http://api.steampowered.com/IDOTA2MatchStats_570/GetRealtimeStats/v1/?key={_apiKey}&server_steam_id={request.SteamServerId}"))).Result;
-                    
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+
+                    }
                     Sender.Tell(response.Content.ReadFromJsonAsync<RealtimeStats>().Result);
                     break;
                 case GetMatchDetailsRequest request:

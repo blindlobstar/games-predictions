@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
+  dotapredictions:
+    image: ${DOCKER_REGISTRY-}dotapredictions
+    build:
+      context: .
+      dockerfile: DotaPredictions/Dockerfile
+    depends_on:
+      - rabbitmq

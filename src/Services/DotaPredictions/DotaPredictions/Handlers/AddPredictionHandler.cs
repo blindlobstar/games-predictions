@@ -12,6 +12,12 @@ namespace DotaPredictions.Handlers
         private readonly PredictionManagerProvider _predictionManagerProvider;
         private readonly IActorRef _predictionManager;
 
+        public AddPredictionHandler(PredictionManagerProvider predictionManagerProvider)
+        {
+            _predictionManagerProvider = predictionManagerProvider;
+            _predictionManager = _predictionManagerProvider();
+        }
+
         public async Task Handle(AddPrediction @event)
         {
             var request = new PredictionManager.AddPredictionRequest(@event.UserId, @event.SteamId,

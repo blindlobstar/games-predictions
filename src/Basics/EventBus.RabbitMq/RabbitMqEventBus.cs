@@ -41,6 +41,7 @@ namespace EventBus.RabbitMq
             _consumerChannel = CreateConsumerChannel();
             _eventToHandler = new();
             _basicSerializer = basicSerializer;
+            _serviceScopeFactory = serviceScopeFactory;
             _retryCount = retryCount;
         }
 

@@ -65,8 +65,8 @@ namespace DotaPredictions.Actors.Predictions
                 case CMsgDOTAMatch match:
                     var isRadiantWin = match.match_outcome == EMatchOutcome.k_EMatchOutcome_RadVictory;
                     var playerIndex = match.players.FindIndex(x => x.account_id == new SteamID(SteamId).AccountID);
-                    var result = (playerIndex > match.players.Count / 2) ^
-                                 isRadiantWin;
+                    var result = !((playerIndex < match.players.Count / 2) ^
+                                 isRadiantWin);
                     
                     Timers.Cancel("getMatchDetails");
                     Context.Parent.Tell(new PredictionEnds(result));
