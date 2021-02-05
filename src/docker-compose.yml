@@ -8,6 +8,6 @@ services:
     image: ${DOCKER_REGISTRY-}dotapredictions
     build:
       context: .
-      dockerfile: DotaPredictions/Dockerfile
+      dockerfile: Services/DotaPredictions/DotaPredictions/Dockerfile
     depends_on:
       - rabbitmq

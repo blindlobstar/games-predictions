@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.Core", "..\..\Basics\D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.MongoDB", "..\..\Basics\Data.MongoDB\Data.MongoDB.csproj", "{B40BABE9-359F-4D33-BFAB-8F170EFF10E9}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5CDEB777-1531-45B5-981A-7F786F4CB1C7}"
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "..\..\docker-compose.dcproj", "{5CDEB777-1531-45B5-981A-7F786F4CB1C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
