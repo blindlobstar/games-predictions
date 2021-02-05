@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Polly;
-using Polly.Retry;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
@@ -52,7 +51,7 @@ namespace EventBus.RabbitMq
                 _persistentConnection.TryConnect();
             }
 
-            var policy = RetryPolicy.Handle<BrokerUnreachableException>()
+            var policy = Policy.Handle<BrokerUnreachableException>()
                 .Or<SocketException>()
                 .WaitAndRetry(_retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
                 {
@@ -120,7 +119,7 @@ namespace EventBus.RabbitMq
 
             using var channel = _persistentConnection.CreateModel();
             channel.QueueBind(queue: _queueName,
-                exchange: "default",
+                exchange: BROKER_NAME,
                 routingKey: eventName);
         }
 
@@ -188,7 +187,7 @@ namespace EventBus.RabbitMq
 
             var channel = _persistentConnection.CreateModel();
 
-            channel.ExchangeDeclare(exchange: "default",
+            channel.ExchangeDeclare(exchange: BROKER_NAME,
                                     type: "direct");
 
             channel.QueueDeclare(queue: _queueName,
@@ -197,7 +196,7 @@ namespace EventBus.RabbitMq
                                  autoDelete: false,
                                  arguments: null);
 
-            channel.CallbackException += (sender, ea) =>
+            channel.CallbackException += (_, ea) =>
             {
                 _logger.LogWarning(ea.Exception, "Recreating RabbitMQ consumer channel");
 
