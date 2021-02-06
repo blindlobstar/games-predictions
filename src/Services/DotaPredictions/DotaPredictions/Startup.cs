@@ -1,10 +1,8 @@
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.Routing;
 using DotaPredictions.Actors;
-using DotaPredictions.Actors.Predictions;
 using DotaPredictions.Actors.Providers;
 using DotaPredictions.Handlers;
 using DotaPredictions.Models.Commands;

@@ -1,8 +1,8 @@
 ﻿using System;
 using Akka.Actor;
 using DotaPredictions.Actors.BaseTypesActors;
-using DotaPredictions.Actors.Predictions;
 using DotaPredictions.Models;
+using DotaPredictions.Predictions.Win;
 
 namespace DotaPredictions.Actors
 {
@@ -18,7 +18,7 @@ namespace DotaPredictions.Actors
                 PredictionId = predictionId;
                 UserId = userId;
                 SteamId = steamId;
-                Models.PredictionType.TryParse(predictionType, out Models.PredictionType type);
+                Enum.TryParse(predictionType, out PredictionType type);
                 PredictionType = type;
                 Parameters = parameters;
             }

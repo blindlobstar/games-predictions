@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data.MongoDB", "..\..\Basic
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "..\..\docker-compose.dcproj", "{5CDEB777-1531-45B5-981A-7F786F4CB1C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotaPredictions.UnitTests", "DotaPredictions.UnitTests\DotaPredictions.UnitTests.csproj", "{75205F3D-B093-4215-AB29-1A776307F225}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{5CDEB777-1531-45B5-981A-7F786F4CB1C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CDEB777-1531-45B5-981A-7F786F4CB1C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CDEB777-1531-45B5-981A-7F786F4CB1C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75205F3D-B093-4215-AB29-1A776307F225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75205F3D-B093-4215-AB29-1A776307F225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75205F3D-B093-4215-AB29-1A776307F225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75205F3D-B093-4215-AB29-1A776307F225}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

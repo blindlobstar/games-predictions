@@ -2,7 +2,7 @@
 using SteamKit2;
 using SteamKit2.GC.Dota.Internal;
 
-namespace DotaPredictions.Actors.Predictions
+namespace DotaPredictions.Predictions.Win
 {
     public class WinPredictionLogic : IPredictionLogic<CMsgDOTAMatch, ulong>
     {
