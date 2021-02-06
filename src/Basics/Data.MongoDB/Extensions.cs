@@ -17,5 +17,19 @@ namespace Data.MongoDB
             });
         }
 
+        public static void AddMongoDb(this IServiceCollection services, string collectionName, string databaseName, string connectionString)
+        {
+            services.AddSingleton<IDatabaseSettings, DatabaseSettings>(opt =>
+            {
+                var options = new DatabaseSettings()
+                {
+                    CollectionName = collectionName,
+                    ConnectionString = connectionString,
+                    DatabaseName = databaseName
+                };
+                return options;
+            });
+        }
+
     }
 }

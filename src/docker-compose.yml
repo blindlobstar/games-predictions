@@ -4,6 +4,9 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
 
+  nosql:
+    image: mongo
+
   dotapredictions:
     image: ${DOCKER_REGISTRY-}dotapredictions
     build:
@@ -11,3 +14,4 @@ services:
       dockerfile: Services/DotaPredictions/DotaPredictions/Dockerfile
     depends_on:
       - rabbitmq
+      - nosql

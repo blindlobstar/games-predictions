@@ -1,7 +1,15 @@
-﻿namespace DotaPredictions.Models.Dto
+﻿using Data.Core;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace DotaPredictions.Models.Dto
 {
-    public class Prediction : PredictionBase<dynamic>
+    public class PredictionDto : PredictionBase<dynamic>, IEntity<string>
     {
         public bool IsFinished { get; set; }
+        
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
     }
 }

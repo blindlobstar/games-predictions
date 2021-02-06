@@ -14,22 +14,15 @@ namespace DotaPredictions.Actors.BaseTypesActors
 
         public class StartPrediction : PredictionBase<TParams>
         {
-            public StartPrediction(ulong steamId, string userId, TParams @params)
+            public StartPrediction(ulong steamId, string userId, string predictionId, TParams @params)
             {
                 SteamId = steamId;
                 UserId = userId;
                 Parameters = @params;
-            }
-        }
-
-        public class PredictionEnds
-        {
-            public PredictionEnds(bool result)
-            {
-                Result = result;
+                PredictionId = predictionId;
             }
 
-            public bool Result { get; private set; }
+            public string PredictionId { get; private set; }
         }
 
         #endregion
@@ -41,6 +34,8 @@ namespace DotaPredictions.Actors.BaseTypesActors
         public ITimerScheduler Timers { get; set; }
         private long MatchId { get; set; }
         private ulong SteamId { get; set; }
+        private string UserId { get; set; }
+        private string PredictionId { get; set; }
 
         public GameEnd(IActorRef dotaClient, IPredictionLogic<CMsgDOTAMatch, TParams> predictionLogic)
         {
@@ -56,6 +51,7 @@ namespace DotaPredictions.Actors.BaseTypesActors
                     _log.Info("Start new prediction for user with SteamId: {0}", request.SteamId);
                     SteamId = request.SteamId;
                     Parameters = request.Parameters;
+                    PredictionId = request.PredictionId;
                     _dotaClient.Tell(new DotaClient.ServerSteamIdRequest(request.SteamId));
                     break;
                 case ulong serverSteamId:
@@ -68,7 +64,7 @@ namespace DotaPredictions.Actors.BaseTypesActors
                 case CMsgDOTAMatch match:
                     var checkResult = _predictionLogic.Check(match, Parameters);
                     Timers.Cancel("getMatchDetails");
-                    Context.Parent.Tell(new PredictionEnds(checkResult.Result));
+                    Context.Parent.Tell(new PredictionManager.PredictionEnds(PredictionId, UserId, checkResult.Result));
                     _log.Info("Prediction is over for user with SteamId: {0}, Result: {1}", SteamId, checkResult.Result);
                     Context.Stop(Self);
                     break;

@@ -7,14 +7,21 @@ services:
       - "15672:15672"
       - "5672:5672"
 
+  nosql:
+    ports:
+      - "27017:27017"
+
   dotapredictions:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASS=guest
-      - STEAM_USERNAME=username
+      - STEAM_USERNAME=name
       - STEAM_PASS=pass
       - STEAM_API_KEY=key
+      - MONGODB_COLLECTION=PredictionsDB
+      - MONGODB_DB_NAME=Predictiondb
+      - MONGODB_CONNECTION=mongodb://nosql
     ports:
       - "80"

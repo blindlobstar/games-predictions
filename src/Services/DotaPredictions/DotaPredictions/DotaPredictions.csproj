@@ -18,6 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Basics\Data.Core\Data.Core.csproj" />
+    <ProjectReference Include="..\..\..\Basics\Data.MongoDB\Data.MongoDB.csproj" />
     <ProjectReference Include="..\..\..\Basics\EventBus.Core\EventBus.Core.csproj" />
     <ProjectReference Include="..\..\..\Basics\EventBus.RabbitMq\EventBus.RabbitMq.csproj" />
   </ItemGroup>

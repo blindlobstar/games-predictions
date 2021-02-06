@@ -1,4 +1,5 @@
-﻿using Akka.TestKit.NUnit3;
+﻿using System;
+using Akka.TestKit.NUnit3;
 using DotaPredictions.Actors;
 using DotaPredictions.Actors.BaseTypesActors;
 using DotaPredictions.Infrastructure.Predictions;
@@ -22,7 +23,8 @@ namespace DotaPredictions.UnitTests.Actors
             predictionLogicMock.Setup(x => x.Check(It.IsAny<CMsgDOTAMatch>(), It.IsAny<ulong>()))
                 .Returns(new CheckResult() {IsFinished = true, Result = true});
             var gameEndActor = testSender.ChildActorOf(GameEnd<ulong>.Props(dotaClient, predictionLogicMock.Object));
-            var message = new GameEnd<ulong>.StartPrediction(ulong.MinValue, string.Empty, ulong.MinValue);
+            var message = new GameEnd<ulong>.StartPrediction(ulong.MinValue, string.Empty, 
+                string.Empty, ulong.MinValue);
             var realtimeStat = new RealtimeStats()
             {
                 Match = new Models.Steam.Match()
@@ -41,7 +43,7 @@ namespace DotaPredictions.UnitTests.Actors
             gameEndActor.Tell(new CMsgDOTAMatch() {radiant_team_score = 10}, dotaClient);
             
             //Assert
-            testSender.ExpectMsg<GameEnd<ulong>.PredictionEnds>(x => x.Result);
+            testSender.ExpectMsg<PredictionManager.PredictionEnds>(x => x.Result);
         }
     }
 }
